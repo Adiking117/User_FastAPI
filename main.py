@@ -7,21 +7,11 @@ import bcrypt
 from jose import jwt
 from models import User
 from motor.motor_asyncio import AsyncIOMotorClient
-
+from constants import MONGO_URI,DATABASE_NAME,COLLECTION_NAME,ACCESS_TOKEN_EXPIRY_MINUTES,ALGORITHM,REFRESH_TOKEN_EXPIRY_DAYS,SECRET_KEY
 
 
 app = FastAPI()
 
-users = {}
-
-SECRET_KEY = "javainuse-secret-key"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRY_MINUTES = 30
-REFRESH_TOKEN_EXPIRY_DAYS = 7
-
-MONGO_URI = "mongodb+srv://Aditya:Aditya117@cluster0.jobmwgx.mongodb.net/?retryWrites=true&w=majority"
-DATABASE_NAME = "adifast"
-COLLECTION_NAME = "users"
 
 # MongoDB client
 client = AsyncIOMotorClient(MONGO_URI)
@@ -90,38 +80,6 @@ async def read_user(user_name: str):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
-
-
-
-# def generate_access_token(data: dict, expires_delta: int = 0):
-#     user_data = data.copy()
-#     if expires_delta:
-#         expire = datetime.utcnow() + timedelta(minutes=expires_delta)
-#     else:
-#         expire = datetime.utcnow() + timedelta(minutes=15)
-#     user_data.update({"expiry": expire.isoformat()})
-#     encoded_jwt = jwt.encode(user_data, SECRET_KEY, algorithm=ALGORITHM)
-#     return encoded_jwt
-
-
-# def generate_refresh_token(data: dict):
-#     return generate_access_token(data, expires_delta=REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60)
-
-
-# def refresh_access_token(refresh_token):
-    decoded_refresh_token = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
-    username = decoded_refresh_token['data']
-
-    if users.get(username, {}).get('refresh_token') != refresh_token:
-        raise HTTPException(status_code=401, detail="Invalid refresh token")
-
-    access_token_data = {"data": username}
-    new_access_token = generate_access_token(access_token_data)
-    users[username]['access_token'] = new_access_token
-    save_to_json(users)
-
-    return new_access_token
-
 
 
 
